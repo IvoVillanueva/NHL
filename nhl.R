@@ -5,8 +5,8 @@ nhl_logos <- read_html("https://espndeportes.espn.com/nhl/equipos") %>%
   html_nodes(".pl3 > a") %>% 
   html_attr("href")%>% tibble() %>% 
   set_names(c("nhl_logos")) %>% 
-  mutate(equipourl = str_extract(nhl_logos, "[^/]+$"), #esto saca la última parte de la url con los nombres de los equipos
-         equipoabr = str_split(nhl_logos, "/", simplify = TRUE)[ , 6]) #esto saca lo que hay en el hueco numero siete entre barras
+  mutate(equipourl = str_extract(nhl_logos, "[^/]+$"), 
+         equipoabr = str_split(nhl_logos, "/", simplify = TRUE)[ , 6]) 
 
 # ----------------------
 
@@ -129,7 +129,7 @@ nhl_name_final <- cabezas  %>%
 nhl_name_df <- nhl_name_final %>% unnest() %>%
    set_names(c("abr", "teams" , "espn_player_name"))%>%
     mutate(espn_player_name = str_squish(espn_player_name),
-                     number = str_extract(espn_player_name, "[0-9]+"),#sacamos el numero del jugador
+                     number = str_extract(espn_player_name, "[0-9]+"),
                      espn_player_name = str_remove(espn_player_name, "[0-9]+")) %>% 
                      select(espn_player_name, number)
 #--------------------------------------------------
