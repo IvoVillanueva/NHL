@@ -112,8 +112,7 @@ nhl_lfoto_final <- cabezas  %>%
 
 nhl_lfoto_df <- nhl_lfoto_final %>% unnest() %>%
   set_names(c("abr", "teams" , "espn_foto"))%>%
-  mutate(id_player = str_extract(espn_foto, "[0-9]+"), #sacamos el id del jugador
-         numero = row_number()) #esta columna es para la union con la tabla de los nombres
+  mutate(id_player = str_extract(espn_foto, "[0-9]+")) 
 
 #--------------------------------------------------
 nhl_name_scrape <- function(abr, teams) {
@@ -128,15 +127,16 @@ nhl_name_final <- cabezas  %>%
   mutate(data = map2(abr, teams, ~ nhl_name_scrape(.x,.y)))
 
 nhl_name_df <- nhl_name_final %>% unnest() %>%
-  set_names(c("abr", "teams" , "espn_player_name"))%>%
-  mutate(espn_player_name = str_squish(espn_player_name),
-         number = str_extract(espn_player_name, "[0-9]+"),#sacamos el numero del jugador
-         espn_player_name = str_remove(espn_player_name, "[0-9]+"),
-         numero = row_number()) #esta columna es para la union con la tabla de los nombres unlist(regmatches(y, regexec("[[:upper:]]{3}\\b", y)))
+   set_names(c("abr", "teams" , "espn_player_name"))%>%
+    mutate(espn_player_name = str_squish(espn_player_name),
+                     number = str_extract(espn_player_name, "[0-9]+"),#sacamos el numero del jugador
+                     espn_player_name = str_remove(espn_player_name, "[0-9]+")) %>% 
+                     select(espn_player_name, number)
 #--------------------------------------------------
 
-dataNHL <- nhl_lfoto_df %>% left_join(nhl_name_df, by =c("numero", "abr","teams")) %>%
-  select(-numero)
+dataNHL <-tibble (nhl_name_df,nhl_lfoto_df) %>% 
+          select(id_player, espn_player_name, number, espn_foto, teams, abr)
+
 dataNHL <- dataNHL %>% left_join(nhl_logos, by =c("abr","teams"))%>%
                         mutate(
                           espn_team_name = case_when(
@@ -224,4 +224,6 @@ dataNHL <- read.csv("dataNHL.csv")
 
 #--------------------------------------------------
 
+data_git_nhl <- read.csv("https://raw.githubusercontent.com/IvoVillanueva/NHL/main/dataNHL.csv")
+data_git_nhl 
 
